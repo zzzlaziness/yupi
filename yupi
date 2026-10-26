@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Protocolo SSH - CTP de Buenos Aires</title>
+
+    <style>
+
+        /* CSS RESET & VARIABLES */
+
+        :root {
+
+            --primary-color: #2563eb;
+
+            --primary-dark: #1d4ed8;
+
+            --bg-body: #f8fafc;
+
+            --bg-card: #ffffff;
+
+            --text-main: #334155;
+
+            --text-title: #0f172a;
+
+            --code-bg: #1e293b;
+
+            --code-text: #38bdf8;
+
+            --border-color: #e2e8f0;
+
+        }
+
+        * {
+
+            box-sizing: border-box;
+
+            margin: 0;
+
+            padding: 0;
+
+        }
+
+        body {
+
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+            background-color: var(--bg-body);
+
+            color: var(--text-main);
+
+            line-height: 1.6;
+
+        }
+
+        /* HEADER & NAVIGATION */
+
+        header {
+
+            background-color: var(--text-title);
+
+            color: white;
+
+            padding: 1.5rem 2rem;
+
+            text-align: center;
+
+            border-bottom: 4px solid var(--primary-color);
+
+        }
+
+        header h1 {
+
+            font-size: 1.8rem;
+
+            margin-bottom: 0.25rem;
+
+        }
+
+        header p {
+
+            color: #94a3b8;
+
+            font-size: 0.95rem;
+
+        }
+
+        /* LAYOUT CONTAINER */
+
+        .container {
+
+            max-width: 1000px;
+
+            margin: 2rem auto;
+
+            padding: 0 1rem;
+
+        }
+
+        section {
+
+            background: var(--bg-card);
+
+            border: 1px solid var(--border-color);
+
+            border-radius: 8px;
+
+            padding: 1.5rem;
+
+            margin-bottom: 1.5rem;
+
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+        }
+
+        h2 {
+
+            color: var(--primary-color);
+
+            border-bottom: 2px solid var(--border-color);
+
+            padding-bottom: 0.5rem;
+
+            margin-bottom: 1rem;
+
+            font-size: 1.3rem;
+
+        }
+
+        h3 {
+
+            color: var(--text-title);
+
+            margin: 1rem 0 0.5rem 0;
+
+            font-size: 1.05rem;
+
+        }
+
+        p, ul, ol {
+
+            margin-bottom: 1rem;
+
+            font-size: 0.95rem;
+
+        }
+
+        ul, ol {
+
+            padding-left: 1.2rem;
+
+        }
+
+        /* TABLAS DE COMANDOS */
+
+        .table-responsive {
+
+            overflow-x: auto;
+
+        }
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 1rem;
+
+            font-size: 0.9rem;
+
+        }
+
+        th, td {
+
+            border: 1px solid var(--border-color);
+
+            padding: 0.75rem;
+
+            text-align: left;
+
+        }
+
+        th {
+
+            background-color: #f1f5f9;
+
+            color: var(--text-title);
+
+        }
+
+        /* BLOQUES DE CÓDIGO Y COMANDOS CLI */
+
+        code, pre {
+
+            font-family: 'Consolas', 'Courier New', monospace;
+
+        }
+
+        p code {
+
+            background-color: #f1f5f9;
+
+            color: #d97706;
+
+            padding: 0.2rem 0.4rem;
+
+            border-radius: 4px;
+
+            font-size: 0.875rem;
+
+        }
+
+        .cli-block {
+
+            background-color: var(--code-bg);
+
+            color: #f8fafc;
+
+            padding: 1rem;
+
+            border-radius: 6px;
+
+            overflow-x: auto;
+
+            margin: 1rem 0;
+
+            font-size: 0.875rem;
+
+        }
+
+        .cli-block .command {
+
+            color: var(--code-text);
+
+        }
+
+        .cli-block .comment {
+
+            color: #64748b;
+
+            font-style: italic;
+
+        }
+
+        /* CONTENEDOR DE VIDEO RESPONSIVO */
+
+        .video-container {
+
+            position: relative;
+
+            padding-bottom: 56.25%; /* Relacion de aspecto 16:9 */
+
+            height: 0;
+
+            overflow: hidden;
+
+            border-radius: 8px;
+
+            background-color: #000;
+
+            margin-top: 1rem;
+
+        }
+
+        .video-container iframe {
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            border: 0;
+
+        }
+
+        /* FOOTER */
+
+        footer {
+
+            text-align: center;
+
+            padding: 1.5rem;
+
+            color: #64748b;
+
+            font-size: 0.85rem;
+
+            border-top: 1px solid var(--border-color);
+
+            margin-top: 2rem;
+
+        }
+
+        /* INTERACTIVIDAD JS */
+
+        .copy-btn {
+
+            background-color: #334155;
+
+            color: #fff;
+
+            border: none;
+
+            padding: 0.25rem 0.5rem;
+
+            border-radius: 4px;
+
+            font-size: 0.75rem;
+
+            cursor: pointer;
+
+            float: right;
+
+        }
+
+        .copy-btn:hover {
+
+            background-color: var(--primary-color);
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>Protocolo SSH (Secure Shell)</h1>
+
+        <p>Redes de Computadoras | CTP de Buenos Aires</p>
+
+    </header>
+
+    <main class="container">
+
+        <!-- SECCIÓN 1: CONCEPTOS BÁSICOS -->
+
+        <section id="teoria">
+
+            <h2>1. Fundación Teórica de SSH</h2>
+
+            <p><strong>SSH (Secure Shell)</strong> es un protocolo de red criptográfico diseñado para iniciar sesión de manera segura en sistemas remotos y administrar dispositivos a través de redes no seguras. Utiliza el puerto por defecto <strong>TCP 22</strong>.</p>
+
+            <p>A diferencia de su antecesor <em>Telnet</em>, SSH cifra todo el tráfico (incluidos nombres de usuario y contraseñas) para prevenir la interceptación de datos (sniffing).</p>
+
+            <ul>
+
+                <li><strong>Confidencialidad:</strong> Cifrado de datos de extremo a extremo.</li>
+
+                <li><strong>Integridad:</strong> Garantía de que la información no sea alterada en tránsito.</li>
+
+                <li><strong>Autenticación:</strong> Verificación de la identidad del cliente y del servidor mediante claves criptográficas.</li>
+
+            </ul>
+
+        </section>
+
+        <!-- SECCIÓN 2: COMANDOS CLI -->
+
+        <section id="comandos">
+
+            <h2>2. Comandos CLI Comunes</h2>
+
+            <p>Comandos estándar ejecutados desde la terminal del cliente para interactuar con servidores SSH:</p>
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Comando</th>
+
+                            <th>Descripción</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+
+                            <td><code>ssh usuario@ip_servidor</code></td>
+
+                            <td>Inicia sesión remota en la dirección IP especificada.</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td><code>ssh -p 2222 usuario@ip_servidor</code></td>
+
+                            <td>Se conecta especificando un puerto de destino alternativo (2222).</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td><code>ssh-keygen -t rsa -b 4096</code></td>
+
+                            <td>Genera un par de claves criptográficas RSA de 4096 bits.</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td><code>scp archivo.txt usuario@ip:/ruta/</code></td>
+
+                            <td>Copia de forma segura un archivo local hacia el servidor remoto.</td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- SECCIÓN 3: CONFIGURACIÓN EN CISCO PACKET TRACER -->
+
+        <section id="packet-tracer">
+
+            <h2>3. Configuración en Cisco Packet Tracer</h2>
+
+            <p>Pasos secuenciales para habilitar y asegurar el acceso SSH en un Router o Switch Cisco IOS:</p>
+
+            <h3>Paso 1: Configurar Hostname y Nombre de Dominio</h3>
+
+            <div class="cli-block">
+
+                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+
+                <pre>Router> <strong>enable</strong>
+
+Router# <strong>configure terminal</strong>
+
+Router(config)# <strong>hostname R1-CTP</strong>
+
+R1-CTP(config)# <strong>ip domain-name ctpbuenosaires.ed.cr</strong></pre>
+
+            </div>
+
+            <h3>Paso 2: Generar Claves RSA y Versión SSH</h3>
+
+            <div class="cli-block">
+
+                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+
+                <pre>R1-CTP(config)# <strong>crypto key generate rsa general-keys modulus 1024</strong>
+
+R1-CTP(config)# <strong>ip ssh version 2</strong></pre>
+
+            </div>
+
+            <h3>Paso 3: Crear Usuario y Configurar Líneas VTY</h3>
+
+            <div class="cli-block">
+
+                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+
+                <pre>R1-CTP(config)# <strong>username admin privilege 15 secret CtpPass2024!</strong>
+
+R1-CTP(config)# <strong>line vty 0 4</strong>
+
+R1-CTP(config-line)# <strong>transport input ssh</strong>
+
+R1-CTP(config-line)# <strong>login local</strong>
+
+R1-CTP(config-line)# <strong>exit</strong></pre>
+
+            </div>
+
+        </section>
+
+        <!-- SECCIÓN 4: RECURSO MULTIMEDIA -->
+
+        <section id="media">
+
+            <h2>4. Laboratorio Guiado en Video</h2>
+
+            <p>Observe el procedimiento paso a paso para verificar la conectividad desde una PC cliente hacia el Router en Cisco Packet Tracer:</p>
+
+            <div class="video-container">
+
+                <iframe 
+
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+
+                    title="Demostración SSH Cisco Packet Tracer" 
+
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+
+                    allowfullscreen>
+
+                </iframe>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+
+        <p>&copy; CTP de Buenos Aires - Departamento de Informática y Redes</p>
+
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT -->
+
+    <script>
+
+        function copyCode(button) {
+
+            const preBlock = button.nextElementSibling;
+
+            const textToCopy = preBlock.innerText;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+
+                const originalText = button.innerText;
+
+                button.innerText = '¡Copiado!';
+
+                button.style.backgroundColor = '#16a34a';
+
+                setTimeout(() => {
+
+                    button.innerText = originalText;
+
+                    button.style.backgroundColor = '#334155';
+
+                }, 2000);
+
+            }).catch(err => {
+
+                console.error('Error al copiar el texto: ', err);
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>
